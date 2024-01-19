@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/arm/src/stm32h7/hardware/stm32_i2c.h
+ * arch/arm/src/stm32h7/stm32_vrefbuf.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,28 +18,46 @@
  *
  ****************************************************************************/
 
-#ifndef __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_I2C_H
-#define __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_I2C_H
+#ifndef __ARCH_ARM_SRC_STM32H7_STM32_VREFBUF_H
+#define __ARCH_ARM_SRC_STM32H7_STM32_VREFBUF_H
+
+#ifndef __ASSEMBLY__
 
 /****************************************************************************
- * Included Files
+ * Public Data
  ****************************************************************************/
 
-#include <nuttx/config.h>
-#include "chip.h"
-
-#if defined(CONFIG_STM32H7_STM32H72X73X)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7X3XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7B3XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7X5XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7X7XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
+#undef EXTERN
+#if defined(__cplusplus)
+#  define EXTERN extern "C"
+extern "C"
+{
 #else
-#  error "Unsupported STM32 H7 sub family"
+#  define EXTERN extern
 #endif
 
-#endif /* __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_I2C_H */
+/****************************************************************************
+ * Public Function Prototypes
+ ****************************************************************************/
+
+/****************************************************************************
+ * Function: stm32_vrefbuf_initialize
+ *
+ * Description:
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   Zero (OK) or error value
+ *
+ ****************************************************************************/
+
+int stm32_vrefbuf_initialize(void);
+
+#undef EXTERN
+#ifdef __cplusplus
+}
+#endif
+#endif /* __ASSEMBLY__ */
+#endif /* __ARCH_ARM_SRC_STM32H7_STM32_VREFBUF_H */

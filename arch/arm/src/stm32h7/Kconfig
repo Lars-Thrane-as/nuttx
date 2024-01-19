@@ -12,6 +12,24 @@ choice
 	default ARCH_CHIP_STM32H743ZI
 	depends on ARCH_CHIP_STM32H7
 
+config ARCH_CHIP_STM32H723VE
+	bool "STM32H723VE"
+	select STM32H7_STM32H72X73X
+	select STM32H7_FLASH_CONFIG_E
+	select STM32H7_HAVE_FDCAN1
+	select STM32H7_HAVE_FDCAN2
+	---help---
+		STM32 H7 Cortex M7, 512 Kb FLASH, LQFP100
+
+config ARCH_CHIP_STM32H730VB
+	bool "STM32H730VB"
+	select STM32H7_STM32H72X73X
+	select STM32H7_FLASH_CONFIG_B
+	select STM32H7_HAVE_FDCAN1
+	select STM32H7_HAVE_FDCAN2
+	---help---
+		STM32 H7 Cortex M7, 128 Kb FLASH, LQFP100
+
 config ARCH_CHIP_STM32H743AG
 	bool "STM32H743AG"
 	select STM32H7_STM32H7X3XX
@@ -317,6 +335,25 @@ config STM32H7_IO_CONFIG_Z
 	bool
 	default n
 
+config STM32H7_STM32H72X73X
+	bool
+	default n
+	select ARCH_HAVE_FPU
+	select ARCH_HAVE_DPFPU
+	select ARMV7M_HAVE_ICACHE
+	select ARMV7M_HAVE_DCACHE
+	select ARMV7M_HAVE_ITCM
+	select ARMV7M_HAVE_DTCM
+	select STM32H7_HAVE_ETHERNET
+	select STM32H7_HAVE_FMC
+	select STM32H7_HAVE_GPIOF
+	select STM32H7_HAVE_GPIOG
+	select STM32H7_HAVE_SPI4
+	select STM32H7_HAVE_SPI5
+	select STM32H7_HAVE_SAI1
+	select STM32H7_HAVE_SAI4
+	select STM32H7_HAVE_VREFBUF
+
 config ARCH_STM32H7_DUALCORE
 	bool
 	default n
@@ -352,6 +389,7 @@ config STM32H7_STM32H7X3XX
 	select STM32H7_HAVE_FMC
 	select STM32H7_HAVE_GPIOF if !STM32H7_IO_CONFIG_V
 	select STM32H7_HAVE_GPIOG if !STM32H7_IO_CONFIG_V
+	select STM32H7_HAVE_GPIOI if !STM32H7_IO_CONFIG_V
 	select STM32H7_HAVE_SPI4
 	select STM32H7_HAVE_SPI5 if !STM32H7_IO_CONFIG_V
 	select STM32H7_HAVE_SPI6
@@ -365,6 +403,7 @@ config STM32H7_STM32H7B3XX
 	select STM32H7_HAVE_FMC
 	select STM32H7_HAVE_GPIOF if !STM32H7_IO_CONFIG_V
 	select STM32H7_HAVE_GPIOG if !STM32H7_IO_CONFIG_V
+	select STM32H7_HAVE_GPIOI if !STM32H7_IO_CONFIG_V
 	select STM32H7_HAVE_SPI4
 	select STM32H7_HAVE_SPI5 if !STM32H7_IO_CONFIG_V
 	select STM32H7_HAVE_SPI6
@@ -396,11 +435,16 @@ config STM32H7_STM32H7X7XX
 	select STM32H7_HAVE_FMC
 	select STM32H7_HAVE_GPIOF
 	select STM32H7_HAVE_GPIOG
+	select STM32H7_HAVE_GPIOI
 	select STM32H7_HAVE_SPI4
 	select STM32H7_HAVE_SPI5
 	select STM32H7_HAVE_SPI6
 
 config STM32H7_FLASH_CONFIG_B
+	bool
+	default n
+
+config STM32H7_FLASH_CONFIG_E
 	bool
 	default n
 
@@ -422,6 +466,7 @@ choice
 
 			Designator  Size in KiB
 				B	128
+				E	512
 				G	1024
 				I	2048
 
@@ -443,6 +488,9 @@ config STM32H7_FLASH_OVERRIDE_DEFAULT
 
 config STM32H7_FLASH_OVERRIDE_B
 	bool "B 128KiB"
+
+config STM32H7_FLASH_OVERRIDE_E
+	bool "E 512KiB"
 
 config STM32H7_FLASH_OVERRIDE_G
 	bool "G 1048KiB"
@@ -609,6 +657,18 @@ config STM32H7_HAVE_FDCAN2
 	bool
 	default n
 
+config STM32H7_HAVE_SAI1
+	bool
+	default n
+
+config STM32H7_HAVE_SAI4
+	bool
+	default n
+
+config STM32H7_HAVE_VREFBUF
+	bool
+	default n
+
 # These "hidden" settings are the OR of individual peripheral selections
 # indicating that the general capability is required.
 
@@ -631,6 +691,11 @@ config STM32H7_DAC
 config STM32H7_DMA
 	bool
 	default n
+
+config STM32H7_SRAM4_BDMA
+	bool
+	default n
+	select ARM_MPU
 
 config STM32H7_I2C
 	bool
@@ -739,6 +804,7 @@ config STM32H7_BDMA
 	default n
 	depends on EXPERIMENTAL
 	select STM32H7_DMA
+	select STM32H7_SRAM4_BDMA
 	select ARCH_DMA
 
 config STM32H7_ETHMAC
@@ -1085,7 +1151,81 @@ config STM32H7_UART8
 	select UART8_SERIALDRIVER
 	select STM32H7_USART
 
+config STM32H7_UART9
+	bool "UART9"
+	default n
+	select ARCH_HAVE_SERIAL_TERMIOS
+	select UART9_SERIALDRIVER
+	select STM32H7_USART
+
+config STM32H7_USART10
+	bool "USART10"
+	default n
+	select ARCH_HAVE_SERIAL_TERMIOS
+	select USART10_SERIALDRIVER
+	select STM32H7_USART
+
 endmenu # STM32H7 U[S]ART Selection
+
+menu "STM32H7 SAI Selection"
+
+config STM32H7_SAI1_A
+	bool "SAI1 Block A"
+	default n
+	select AUDIO
+	select I2S
+	select SCHED_HPWORK
+	select STM32H7_SAI
+	depends on STM32H7_HAVE_SAI1
+
+config STM32H7_SAI1_B
+	bool "SAI1 Block B"
+	default n
+	select AUDIO
+	select I2S
+	select SCHED_HPWORK
+	select STM32H7_SAI
+	depends on STM32H7_HAVE_SAI1
+
+config STM32H7_SAI4_A
+	bool "SAI4 Block A"
+	default n
+	select AUDIO
+	select I2S
+	select SCHED_HPWORK
+	select STM32H7_BDMA
+	select STM32H7_SAI
+	depends on STM32H7_HAVE_SAI4
+
+config STM32H7_SAI4_B
+	bool "SAI4 Block B"
+	default n
+	select AUDIO
+	select I2S
+	select SCHED_HPWORK
+	select STM32H7_BDMA
+	select STM32H7_SAI
+	depends on STM32H7_HAVE_SAI4
+
+endmenu # STM32H7 SAI Selection
+
+menu "STM32H7 VREFBUF Selection"
+
+config STM32H7_VREFBUF
+	bool "VREFBUF enable"
+	default n
+	depends on STM32H7_HAVE_VREFBUF
+
+config STM32H7_VREFBUF_VREF
+	int "VREF voltage"
+	default 0
+	range 0 3
+	depends on STM32H7_VREFBUF
+	---help---
+		Select 2.5V (0), 2.048V (1), 1.8V (2) or 1.5V (3)
+
+endmenu # STM32H7 VREFBUF Selection
+
 endmenu # STM32H7 Peripheral Selection
 
 config STM32H7_USE_LEGACY_PINMAP
@@ -1690,10 +1830,86 @@ config UART8_RXFIFO_THRES
 
 endif # STM32H7_UART8
 
+if STM32H7_UART9
+
+config UART9_RS485
+	bool "RS-485 on UART9"
+	default n
+	---help---
+		Enable RS-485 interface on UART9. Your board config will have to
+		provide GPIO_UART9_RS485_DIR pin definition.
+
+config UART9_RS485_DIR_POLARITY
+	int "UART9 RS-485 DIR pin polarity"
+	default 1
+	range 0 1
+	depends on UART9_RS485
+	---help---
+		Polarity of DIR pin for RS-485 on UART9. Set to state on DIR pin which
+		enables TX (0 - low / nTXEN, 1 - high / TXEN).
+
+config UART9_RXFIFO_THRES
+	int "UART9 Rx FIFO Threshold"
+	default 3
+	range 0 5
+	---help---
+		Select the Rx FIFO threshold:
+
+		  0 -> 1/8 full
+		  1 -> 1/4 full
+		  2 -> 1/2 full
+		  3 -> 3/4 full
+		  4 -> 7/8 full
+		  5 -> Full
+
+		Higher values mean lower interrupt rates and better CPU performance.
+		Lower values may be needed at high BAUD rates to prevent Rx data
+		overrun errors.
+
+endif # STM32H7_UART9
+
+if STM32H7_USART10
+
+config USART10_RS485
+	bool "RS-485 on USART10"
+	default n
+	---help---
+		Enable RS-485 interface on USART10. Your board config will have to
+		provide GPIO_USART10_RS485_DIR pin definition.
+
+config USART10_RS485_DIR_POLARITY
+	int "USART10 RS-485 DIR pin polarity"
+	default 1
+	range 0 1
+	depends on USART10_RS485
+	---help---
+		Polarity of DIR pin for RS-485 on USART10. Set to state on DIR pin which
+		enables TX (0 - low / nTXEN, 1 - high / TXEN).
+
+config USART10_RXFIFO_THRES
+	int "USART10 Rx FIFO Threshold"
+	default 3
+	range 0 5
+	---help---
+		Select the Rx FIFO threshold:
+
+		  0 -> 1/8 full
+		  1 -> 1/4 full
+		  2 -> 1/2 full
+		  3 -> 3/4 full
+		  4 -> 7/8 full
+		  5 -> Full
+
+		Higher values mean lower interrupt rates and better CPU performance.
+		Lower values may be needed at high BAUD rates to prevent Rx data
+		overrun errors.
+
+endif # STM32H7_USART10
+
 config STM32H7_SERIAL_RXDMA_BUFFER_SIZE
 	int "Rx DMA buffer size"
 	default 32
-	depends on USART1_RXDMA || USART2_RXDMA || USART3_RXDMA || UART4_RXDMA || UART5_RXDMA || USART6_RXDMA || UART7_RXDMA || UART8_RXDMA
+	depends on USART1_RXDMA || USART2_RXDMA || USART3_RXDMA || UART4_RXDMA || UART5_RXDMA || USART6_RXDMA || UART7_RXDMA || UART8_RXDMA || UART9_RXDMA || USART10_RXDMA
 	---help---
 		The DMA buffer size when using RX DMA to emulate a FIFO.
 
@@ -6049,5 +6265,73 @@ endif # STM32_PROGMEM_OTA_PARTITION
 endif # STM32_HAVE_OTA_PARTITION
 
 endmenu # Progmem configuration
+
+menu "SAI Configuration"
+	depends on STM32H7_SAI
+
+config STM32H7_SAI_USER_BUFFERS
+	int "Number of SAI buffers (per active sub-block)"
+	default 4
+	---help---
+		These are the buffers that user space can allocate for transfering
+		audio data to and from the SAI driver.
+
+config STM32H7_SAI_BDMA_BUFFER_SIZE
+	int "Number of bytes in 1/4 duplex SAI BDMA buffer"
+	default 1024
+	depends on STM32H7_SAI4_A || STM32H7_SAI4_B
+	---help---
+		The full duplex SAI driver uses double buffering in both directions, so
+		4 times this number will be allocated from SRAM4.
+		Note that this size is in bytes, not samples, so if your audio data is
+		16 bit or 32 bit you need to take that into account.
+
+menu "SAI drivers"
+
+config STM32H7_SAI_DRIVER_DUPLEX
+	bool "Full duplex SAI driver"
+	default y
+	---help---
+		Requires 2 SAI interfaces in synchronous mode
+
+endmenu # SAI drivers
+
+choice
+	prompt "SAI1 synchronization enable"
+	default STM32H7_SAI1_BOTH_ASYNC
+	depends on STM32H7_SAI1_A && STM32H7_SAI1_B
+	---help---
+		Select the synchronization mode of the SAI sub-blocks
+
+config STM32H7_SAI1_BOTH_ASYNC
+	bool "Both asynchronous"
+
+config STM32H7_SAI1_A_SYNC_WITH_B
+	bool "Block A is synchronous with Block B"
+
+config STM32H7_SAI1_B_SYNC_WITH_A
+	bool "Block B is synchronous with Block A"
+
+endchoice # SAI1 synchronization enable
+
+choice
+	prompt "SAI4 synchronization enable"
+	default STM32H7_SAI4_BOTH_ASYNC
+	depends on STM32H7_SAI4_A && STM32H7_SAI4_B
+	---help---
+		Select the synchronization mode of the SAI sub-blocks
+
+config STM32H7_SAI4_BOTH_ASYNC
+	bool "Both asynchronous"
+
+config STM32H7_SAI4_A_SYNC_WITH_B
+	bool "Block A is synchronous with Block B"
+
+config STM32H7_SAI4_B_SYNC_WITH_A
+	bool "Block B is synchronous with Block A"
+
+endchoice # SAI4 synchronization enable
+
+endmenu # SAI Configuration
 
 endif # ARCH_CHIP_STM32H7

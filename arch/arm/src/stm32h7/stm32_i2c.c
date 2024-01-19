@@ -242,17 +242,35 @@
 
 #undef INVALID_CLOCK_SOURCE
 
-#if defined(CONFIG_STM32H7_I2C1) || defined(CONFIG_STM32H7_I2C2) || \
-    defined(CONFIG_STM32H7_I2C3)
-#  if STM32_RCC_D2CCIP2R_I2C123SRC != RCC_D2CCIP2R_I2C123SEL_HSI
-#    warning "Clock Source STM32_RCC_D2CCIP2R_I2C123SRC must be HSI"
-#    define INVALID_CLOCK_SOURCE
+#if defined(CONFIG_STM32H7_STM32H72X73X)
+/* timingr values from STM32CubeMX using H730VBTX MCU.
+ * STM32_I2C123_FREQUENCY must be defined in board.h
+ */
+#  if defined(CONFIG_STM32H7_I2C1) || defined(CONFIG_STM32H7_I2C2) || \
+     defined(CONFIG_STM32H7_I2C3)
+#    if (8000000 == STM32_I2C123_FREQUENCY)
+#      define STANDARD_MODE_TIMINGR  0x2000090E
+#      define FAST_MODE_TIMINGR      0x0000020B
+#    elif (16000000 == STM32_I2C123_FREQUENCY)
+#      define STANDARD_MODE_TIMINGR  0x00303D5B
+#      define FAST_MODE_TIMINGR      0x0010061A
+#    else
+#      error "Clock Source STM32_RCC_D2CCIP2R_I2C123SRC frequency not supported"
+#    endif
 #  endif
-#endif
-#ifdef CONFIG_STM32H7_I2C4
-#  if STM32_RCC_D3CCIPR_I2C4SRC != RCC_D3CCIPR_I2C4SEL_HSI
-#    warning "Clock Source STM32_RCC_D3CCIPR_I2C4SRC must be HSI"
-#    define INVALID_CLOCK_SOURCE
+#else
+#  if defined(CONFIG_STM32H7_I2C1) || defined(CONFIG_STM32H7_I2C2) || \
+     defined(CONFIG_STM32H7_I2C3)
+#    if STM32_RCC_D2CCIP2R_I2C123SRC != RCC_D2CCIP2R_I2C123SEL_HSI
+#      warning "Clock Source STM32_RCC_D2CCIP2R_I2C123SRC must be HSI"
+#      define INVALID_CLOCK_SOURCE
+#    endif
+#  endif
+#  ifdef CONFIG_STM32H7_I2C4
+#    if STM32_RCC_D3CCIPR_I2C4SRC != RCC_D3CCIPR_I2C4SEL_HSI
+#      warning "Clock Source STM32_RCC_D3CCIPR_I2C4SRC must be HSI"
+#      define INVALID_CLOCK_SOURCE
+#    endif
 #  endif
 #endif
 
@@ -1203,12 +1221,6 @@ static void stm32_i2c_tracedump(struct stm32_i2c_priv_s *priv)
 static void stm32_i2c_setclock(struct stm32_i2c_priv_s *priv,
                                uint32_t frequency)
 {
-  uint8_t presc;
-  uint8_t scl_delay;
-  uint8_t sda_delay;
-  uint8_t scl_h_period;
-  uint8_t scl_l_period;
-
   /* I2C peripheral must be disabled to update clocking configuration.
    * This will SW reset the device.
    */
@@ -1217,6 +1229,23 @@ static void stm32_i2c_setclock(struct stm32_i2c_priv_s *priv,
 
   if (frequency != priv->frequency)
     {
+#if defined (CONFIG_STM32H7_STM32H72X73X)
+      uint32_t timingr;
+      if (frequency == 100000)
+        {
+          timingr = STANDARD_MODE_TIMINGR;
+        }
+      else
+        {
+          timingr = FAST_MODE_TIMINGR;
+        }
+#else
+      uint8_t presc;
+      uint8_t scl_delay;
+      uint8_t sda_delay;
+      uint8_t scl_h_period;
+      uint8_t scl_l_period;
+
       /*  The Speed and timing calculation are based on the following
        *  fI2CCLK = HSI and is 16Mhz
        *  Analog filter is on,
@@ -1264,7 +1293,7 @@ static void stm32_i2c_setclock(struct stm32_i2c_priv_s *priv,
         (sda_delay << I2C_TIMINGR_SDADEL_SHIFT) |
         (scl_h_period << I2C_TIMINGR_SCLH_SHIFT) |
         (scl_l_period << I2C_TIMINGR_SCLL_SHIFT);
-
+#endif
       stm32_i2c_putreg32(priv, STM32_I2C_TIMINGR_OFFSET, timingr);
       priv->frequency = frequency;
     }
@@ -2714,9 +2743,11 @@ struct i2c_master_s *stm32_i2cbus_initialize(int port)
   struct stm32_i2c_priv_s *priv = NULL;  /* private data of device with multiple instances */
   struct stm32_i2c_inst_s *inst = NULL;  /* device, single instance */
 
-#if STM32_HSI_FREQUENCY != 16000000 || defined(INVALID_CLOCK_SOURCE)
-#   warning STM32_I2C_INIT: Peripheral clock is HSI and it must be 16mHz or the speed/timing calculations need to be redone.
+#if !defined(CONFIG_STM32H7_STM32H72X73X)
+#  if STM32_HSI_FREQUENCY != 16000000 || defined(INVALID_CLOCK_SOURCE)
+#    warning STM32_I2C_INIT: Peripheral clock is HSI and it must be 16mHz or the speed/timing calculations need to be redone.
   return NULL;
+#  endif
 #endif
 
   /* Get I2C private structure */

@@ -130,6 +130,10 @@ ifeq ($(CONFIG_SPI_SLAVE),y)
 CHIP_CSRCS += stm32_spi_slave.c
 endif
 
+ifeq ($(CONFIG_STM32H7_SRAM4_BDMA),y)
+CHIP_CSRCS += stm32_sram4_bdma.c
+endif
+
 ifeq ($(CONFIG_STM32H7_SDMMC),y)
 CHIP_CSRCS += stm32_sdmmc.c
 endif
@@ -190,4 +194,12 @@ endif
 
 ifeq ($(CONFIG_STM32H7_WWDG),y)
 CHIP_CSRCS += stm32_wwdg.c
+endif
+
+ifeq ($(CONFIG_STM32H7_SAI_DRIVER_DUPLEX),y)
+CHIP_CSRCS += stm32_sai_duplex.c
+endif
+
+ifeq ($(CONFIG_STM32H7_VREFBUF),y)
+CHIP_CSRCS += stm32_vrefbuf.c
 endif

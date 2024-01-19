@@ -117,6 +117,16 @@ void stm32_rcc_enablelse(void)
        */
 
       stm32_pwr_enablebkp(true);
+      
+      /* LSE clock bypass.
+       * May be defined in board.h header file 
+       */
+
+#ifdef STM32_HSEBYP_ENABLE
+      regval |= RCC_BDCR_LSEBYP;          /* Enable LSE clock bypass */
+#else
+      regval &= ~RCC_BDCR_LSEBYP;         /* Disable LSE clock bypass */
+#endif
 
       /* Enable the External Low-Speed (LSE) oscillator by setting the
        * LSEON bit the RCC BDCR register.

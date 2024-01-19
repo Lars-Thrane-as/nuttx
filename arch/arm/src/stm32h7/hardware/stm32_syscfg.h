@@ -28,7 +28,9 @@
 #include <nuttx/config.h>
 #include "chip.h"
 
-#if defined(CONFIG_STM32H7_STM32H7X3XX)
+#if defined(CONFIG_STM32H7_STM32H72X73X)
+#  include "hardware/stm32h7x3xx_syscfg.h"
+#elif defined(CONFIG_STM32H7_STM32H7X3XX)
 #  include "hardware/stm32h7x3xx_syscfg.h"
 #elif defined(CONFIG_STM32H7_STM32H7B3XX)
 #  include "hardware/stm32h7x3xx_syscfg.h"

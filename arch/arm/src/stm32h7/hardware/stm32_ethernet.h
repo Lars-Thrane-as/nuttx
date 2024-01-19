@@ -31,7 +31,8 @@
  * families
  */
 
-#if defined(CONFIG_STM32H7_STM32H7X3XX) || \
+#if defined(CONFIG_STM32H7_STM32H72X73X) || \
+    defined(CONFIG_STM32H7_STM32H7X3XX) || \
     defined(CONFIG_STM32H7_STM32H7B3XX) || \
     defined(CONFIG_STM32H7_STM32H7X5XX)
 
@@ -676,5 +677,5 @@ struct eth_desc_s
  ****************************************************************************/
 
 #endif /* __ASSEMBLY__ */
-#endif /* CONFIG_STM32H7_STM32H7X3XX || CONFIG_STM32H7_STM32H7B3XX */
+#endif /* CONFIG_STM32H7_STM32H72X73X || CONFIG_STM32H7_STM32H7X3XX || CONFIG_STM32H7_STM32H7B3XX */
 #endif /* __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_ETHERNET_H */

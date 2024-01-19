@@ -67,7 +67,9 @@
  * Included Files
  ****************************************************************************/
 
-#if defined(CONFIG_STM32H7_STM32H7X3XX)
+#if defined(CONFIG_STM32H7_STM32H72X73X)
+#  include <arch/stm32h7/stm32h72x73x_irq.h>
+#elif defined(CONFIG_STM32H7_STM32H7X3XX)
 #  include <arch/stm32h7/stm32h7x3xx_irq.h>
 #elif defined(CONFIG_STM32H7_STM32H7B3XX)
 #  include <arch/stm32h7/stm32h7x3xx_irq.h>

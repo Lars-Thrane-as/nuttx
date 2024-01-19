@@ -54,7 +54,9 @@
 
 /* Include chip-specific clocking initialization logic */
 
-#if defined(CONFIG_STM32H7_STM32H7X3XX)
+#if defined(CONFIG_STM32H7_STM32H72X73X)
+#  include "stm32h72x73x_rcc.c"
+#elif defined(CONFIG_STM32H7_STM32H7X3XX)
 #  include "stm32h7x3xx_rcc.c"
 #elif defined(CONFIG_STM32H7_STM32H7B3XX)
 #  include "stm32h7x3xx_rcc.c"

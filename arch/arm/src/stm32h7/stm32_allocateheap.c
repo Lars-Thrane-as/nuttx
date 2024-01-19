@@ -263,7 +263,9 @@ void up_allocate_heap(void **heap_start, size_t *heap_size)
 
   /* Return the user-space heap settings */
 
+#ifdef CONFIG_ARCH_LEDS
   board_autoled_on(LED_HEAPALLOCATE);
+#endif
   *heap_start = (void *)ubase;
   *heap_size  = usize;
 
@@ -278,7 +280,9 @@ void up_allocate_heap(void **heap_start, size_t *heap_size)
 
   /* Return the heap settings */
 
+#ifdef CONFIG_ARCH_LEDS
   board_autoled_on(LED_HEAPALLOCATE);
+#endif
   *heap_start = (void *)g_idle_topstack;
   *heap_size  = SRAM_END - g_idle_topstack;
 

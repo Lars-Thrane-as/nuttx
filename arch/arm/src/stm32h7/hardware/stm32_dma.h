@@ -25,9 +25,6 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-#include "chip.h"
-
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -317,7 +314,7 @@
 #  define DMA_SCR_PRIHI           (2 << DMA_SCR_PL_SHIFT) /* 10: High */
 #  define DMA_SCR_PRIVERYHI       (3 << DMA_SCR_PL_SHIFT) /* 11: Very high */
 
-#define DMA_SCR_DBM               (1 << 18) /* Bit 15: Double buffer mode */
+#define DMA_SCR_DBM               (1 << 18) /* Bit 18: Double buffer mode */
 #define DMA_SCR_CT                (1 << 19) /* Bit 19: Current target */
 #define DMA_SCR_TRBUFF            (1 << 20) /* Bit 20: Enable the DMA to handle bufferable transfers */
 #define DMA_SCR_PBURST_SHIFT      (21)      /* Bits 21-22: Peripheral burst transfer configuration */

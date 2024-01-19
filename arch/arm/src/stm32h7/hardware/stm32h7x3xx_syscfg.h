@@ -123,6 +123,8 @@
 #define SYSCFG_PMC_PB8_FMP            (1 << 6)  /* Bit 6: PB8 IO pads Fast-mode Plus Enable */
 #define SYSCFG_PMC_PB9_FMP            (1 << 7)  /* Bit 7: PB9 IO pads Fast-mode Plus Enable */
 #define SYSCFG_PMC_BOOSTE             (1 << 8)  /* Bit 8: Booster Enable */
+#define SYSCFG_PMC_BOOSTVDDSEL        (1 << 9)  /* Bit 9: Analog Booster Enable */
+#define SYSCFG_PMC_I2C5_FMP           (1 << 10) /* Bit 10: I2C5 Fast-mode Plus Enable */
 
 #define SYSCFG_PMC_EPIS_SHIFT         (21)      /* Bits 21-23: Ethernet PHY Interface Selection */
 #define SYSCFG_PMC_EPIS_MASK          (7 << SYSCFG_PMC_EPIS_SHIFT)

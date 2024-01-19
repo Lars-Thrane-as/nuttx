@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/arm/src/stm32h7/chip.h
+ * arch/arm/src/stm32h7/stm32_sram4_bdma.h
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,46 +18,60 @@
  *
  ****************************************************************************/
 
-#ifndef __ARCH_ARM_SRC_STM32H7_CHIP_H
-#define __ARCH_ARM_SRC_STM32H7_CHIP_H
+#ifndef __ARCH_ARM_SRC_STM32H7_STM32_SRAM4_BDMA_H
+#define __ARCH_ARM_SRC_STM32H7_STM32_SRAM4_BDMA_H
 
 /****************************************************************************
- * Included Files
+ * The purpose of this driver is to disable data caching of the part of
+ * SRAM4 that is used with the BDMA. Data caching is disabled through the
+ * MPU.
+ *
+ * The driver supports:
+ *  - SAI4
+ *
+ * If another peripheral needs to use the BDMA, please add the memory size
+ * to the cache-disabled area.
+ *
  ****************************************************************************/
 
-#include <nuttx/config.h>
-
-/* Include the memory map and the chip definitions file.  Other chip
- * hardware files should then include this file for the proper setup.
- */
-
-#include <arch/irq.h>
-#include <arch/stm32h7/chip.h>
-#include "hardware/stm32_pinmap.h"
-#include "hardware/stm32_memorymap.h"
-
-/****************************************************************************
- * Pre-processor Definitions
- ****************************************************************************/
-
-/* If the common ARMv7-M vector handling logic is used, then it expects the
- * following definition in this file that provides the number of supported
- * external interrupts which, for this architecture, is provided in the
- * arch/stm32h7/chip.h header file.
- */
-
-#define ARMV7M_PERIPHERAL_INTERRUPTS STM32_IRQ_NEXTINTS
-
-/****************************************************************************
- * Public Types
- ****************************************************************************/
+#ifndef __ASSEMBLY__
 
 /****************************************************************************
  * Public Data
  ****************************************************************************/
 
+#undef EXTERN
+#if defined(__cplusplus)
+#  define EXTERN extern "C"
+extern "C"
+{
+#else
+#  define EXTERN extern
+#endif
+
 /****************************************************************************
  * Public Function Prototypes
  ****************************************************************************/
 
-#endif /* __ARCH_ARM_SRC_STM32H7_CHIP_H */
+/****************************************************************************
+ * Function: stm32_sram4_bdma_initialize
+ *
+ * Description:
+ *   Disable data caching for parts of SRAM4 that is used with the BDMA.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   OK
+ *
+ ****************************************************************************/
+
+void stm32_sram4_bdma_initialize(void);
+
+#undef EXTERN
+#ifdef __cplusplus
+}
+#endif
+#endif /* __ASSEMBLY__ */
+#endif /* __ARCH_ARM_SRC_STM32H7_STM32_SRAM4_BDMA_H */

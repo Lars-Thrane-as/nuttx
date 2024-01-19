@@ -27,7 +27,8 @@
 
 #include <nuttx/config.h>
 
-#if defined(CONFIG_STM32H7_STM32H7X3XX) || \
+#if defined(CONFIG_STM32H7_STM32H72X73X) || \
+    defined(CONFIG_STM32H7_STM32H7X3XX) || \
     defined(CONFIG_STM32H7_STM32H7B3XX) || \
     defined(CONFIG_STM32H7_STM32H7X5XX) || \
     defined(CONFIG_STM32H7_STM32H7X7XX)
@@ -181,9 +182,9 @@
 /* SPI Control Register 2 */
 
 #define SPI_CR2_TSIZE_SHIFT       (0)         /* Bits 0-15 */
-#define SPI_CR2_TSIZE_MASK        (0xff << SPI_CR2_TSIZE_SHIFT)
+#define SPI_CR2_TSIZE_MASK        (0xffff << SPI_CR2_TSIZE_SHIFT)
 #define SPI_CR2_TSER_SHIFT        (16)        /* Bits 16-31 */
-#define SPI_CR2_TSER_MASK         (0xff << SPI_CR2_TSER_SHIFT)
+#define SPI_CR2_TSER_MASK         (0xffff << SPI_CR2_TSER_SHIFT)
 
 /* SPI configuration register 1 */
 
@@ -244,15 +245,11 @@
 #  define SPI_CFG1_UDRCFG_CONST   (0 << SPI_CFG1_UDRCFG_SHIFT)
 #  define SPI_CFG1_UDRCFG_LASTRX  (1 << SPI_CFG1_UDRCFG_SHIFT)
 #  define SPI_CFG1_UDRCFG_LASTTX  (2 << SPI_CFG1_UDRCFG_SHIFT)
-
-                                       /* 11: Reserved */
 #define SPI_CFG1_UDRDET_SHIFT     (11) /* Bits 11-12: detection of underrun condition at slave transmitter */
 #define SPI_CFG1_UDRDET_MASK      (0x3 << SPI_CFG1_UDRDET_SHIFT)
 #  define SPI_CFG1_UDRDET_BEG     (0 << SPI_CFG1_UDRDET_SHIFT)
 #  define SPI_CFG1_UDRDET_END     (1 << SPI_CFG1_UDRDET_SHIFT)
 #  define SPI_CFG1_UDRDET_SS      (2 << SPI_CFG1_UDRDET_SHIFT)
-
-                                            /* 11: Reserved */
 
                                             /* Bit 13: Reserved */
 #define SPI_CFG1_RXDMAEN          (1 << 14) /* Bit 14: RX-DMA stream enable */
@@ -391,7 +388,7 @@
 #define SPI_SR_SUSP              (1 << 11) /* Bit 11: suspend */
 #define SPI_SR_TXC               (1 << 12) /* Bit 12: TxFIFO transmission complete */
 #define SPI_SR_RXPLVL_SHIFT      (13)      /* Bits 13-14: RxFIFO packing level */
-#define SPI_SR_RXPLVL_MASK       (1 << SPI_SR_RXPLVL_SHIFT)
+#define SPI_SR_RXPLVL_MASK       (3 << SPI_SR_RXPLVL_SHIFT)
 #define SPI_SR_RXWNE             (1 << 15) /* Bit 15: RxFIFO word not empty */
 #define SPI_SR_CTSIZE_SHIFT      (16)      /* Bits 16-31: number of data frames remaining in current TSIZE session */
 #define SPI_SR_CTSIZE_MASK       (1 << SPI_SR_CTSIZE_SHIFT)
@@ -463,5 +460,5 @@
 
 /* TODO: SPI/I2S configuration register */
 
-#endif /* CONFIG_STM32H7_STM32H7X3XX || CONFIG_STM32H7_STM32H7B3XX */
+#endif /* CONFIG_STM32H7_STM32H72X73X || CONFIG_STM32H7_STM32H7X3XX || CONFIG_STM32H7_STM32H7B3XX */
 #endif /* __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32H7X3XX_SPI_H */

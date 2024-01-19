@@ -1,5 +1,5 @@
 /****************************************************************************
- * arch/arm/src/stm32h7/hardware/stm32_i2c.h
+ * arch/arm/src/stm32h7/stm32h72x73x_vrefbuf.c
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,28 +18,47 @@
  *
  ****************************************************************************/
 
-#ifndef __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_I2C_H
-#define __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_I2C_H
-
 /****************************************************************************
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
 #include "chip.h"
+#include "arm_internal.h"
+#include "hardware/stm32h72x73x_vrefbuf.h"
 
-#if defined(CONFIG_STM32H7_STM32H72X73X)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7X3XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7B3XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7X5XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#elif defined(CONFIG_STM32H7_STM32H7X7XX)
-#  include "hardware/stm32h7x3xx_i2c.h"
-#else
-#  error "Unsupported STM32 H7 sub family"
-#endif
+/****************************************************************************
+ * Name: vrefbuf_initialize
+ *
+ * Description:
+ *   Initialize VREFBUF.
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   Zero (OK) or error value
+ * 
+ ****************************************************************************/
+static int vrefbuf_initialize(void)
+{
+  const uint32_t vrs = (CONFIG_STM32H7_VREFBUF_VREF << VREFBUF_CSR_VRS_SHIFT);
 
-#endif /* __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_I2C_H */
+  switch(vrs)
+    {
+      case VREFBUF_CSR_VRS_2_5V:
+      case VREFBUF_CSR_VRS_2_048V:
+      case VREFBUF_CSR_VRS_1_8V:
+      case VREFBUF_CSR_VRS_1_5V:
+        break;
+      default:
+        return -EINVAL;
+    }
+  
+  /* Set reference voltage and enable VREF buffer */
+  putreg32(vrs | VREFBUF_CSR_ENVR, STM32_VREFBUF_CSR);
+
+  /* Wait for VRR to be set */
+  while((getreg32(STM32_VREFBUF_CSR) & VREFBUF_CSR_VRR) == 0);
+
+  return OK;
+}

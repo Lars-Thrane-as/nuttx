@@ -33,7 +33,8 @@
  * families
  */
 
-#if defined(CONFIG_STM32H7_STM32H7X3XX) || \
+#if defined(CONFIG_STM32H7_STM32H72X73X) || \
+    defined(CONFIG_STM32H7_STM32H7X3XX) || \
     defined(CONFIG_STM32H7_STM32H7B3XX) || \
     defined(CONFIG_STM32H7_STM32H7X5XX) || \
     defined(CONFIG_STM32H7_STM32H7X7XX)
@@ -236,9 +237,14 @@
 #define EXTI_EVENT_DMAMUX2          74        /* DMAMUX2 interrupt */
 #define EXTI_EVENT_ADC3             75        /* ADC3 interrupt */
 #define EXTI_EVENT_SAI4             76        /* SAI4 interrupt */
+#define EXTI_EVENT_HSEM0            77        /* HSEM interrupt */
 #define EXTI_EVENT_CECWKUP          85        /* HDMI-CEC wakeup */
 #define EXTI_EVENT_ETHWKUP          86        /* Ethernet wakeup */
 #define EXTI_EVENT_HSECSS           87        /* HSECSS interrupt */
+#define EXTI_EVENT_TEMPWKUP         88        /* TEMP wakeup */
+#define EXTI_EVENT_UART9WKUP        89        /* UART9 wakeup */
+#define EXTI_EVENT_USART10WKUP      90        /* USART10 wakeup */
+#define EXTI_EVENT_I2C5WKUP         91        /* I2C5 wakeup */
 
-#endif /* CONFIG_STM32H7_STM32H7X3XX || CONFIG_STM32H7_STM32H7X7XX || CONFIG_STM32H7_STM32H7B3XX */
+#endif /* CONFIG_STM32H7_STM32H72X73X || CONFIG_STM32H7_STM32H7X3XX || CONFIG_STM32H7_STM32H7X7XX || CONFIG_STM32H7_STM32H7B3XX */
 #endif /* __ARCH_ARM_SRC_STM32H7_HARDWARE_STM32_EXTI_H */

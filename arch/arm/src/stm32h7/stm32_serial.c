@@ -170,6 +170,30 @@
 #    endif
 #  endif
 
+#  if defined(CONFIG_UART9_RXDMA)
+#    if !defined(DMAMAP_UART9_RX)
+#     error "UART9 DMA map not defined (DMAMAP_UART9_RX)"
+#    endif
+#    if DMAMAP_UART9_RX == DMAMAP_DMA12_UART9RX_0 && !defined(CONFIG_STM32H7_DMA1)
+#        error STM32 UART9 using DMAMAP_DMA12_UART9RX_0 for receive DMA requires CONFIG_STM32H7_DMA1
+#    endif
+#    if DMAMAP_UART9_RX == DMAMAP_DMA12_UART9RX_1 && !defined(CONFIG_STM32H7_DMA2)
+#        error STM32 UART9 using DMAMAP_DMA12_UART9RX_1 for receive DMA requires CONFIG_STM32H7_DMA2
+#    endif
+#  endif
+
+#  if defined(CONFIG_USART10_RXDMA)
+#    if !defined(DMAMAP_USART10_RX)
+#     error "USART10 DMA map not defined (DMAMAP_USART10_RX)"
+#    endif
+#    if DMAMAP_USART10_RX == DMAMAP_DMA12_USART10RX_0 && !defined(CONFIG_STM32H7_DMA1)
+#        error STM32 USART10 using DMAMAP_DMA12_USART10RX_0 for receive DMA requires CONFIG_STM32H7_DMA1
+#    endif
+#    if DMAMAP_USART10_RX == DMAMAP_DMA12_USART10RX_1 && !defined(CONFIG_STM32H7_DMA2)
+#        error STM32 USART10 using DMAMAP_DMA12_USART10RX_1 for receive DMA requires CONFIG_STM32H7_DMA2
+#    endif
+#  endif
+
 /* Currently RS-485 support cannot be enabled when RXDMA is in use due to
  * lack of testing - RS-485 support was developed on STM32F1x
  */
@@ -181,7 +205,9 @@
       (defined(CONFIG_UART5_RXDMA) && defined(CONFIG_UART5_RS485)) || \
       (defined(CONFIG_USART6_RXDMA) && defined(CONFIG_USART6_RS485)) || \
       (defined(CONFIG_UART7_RXDMA) && defined(CONFIG_UART7_RS485)) || \
-      (defined(CONFIG_UART8_RXDMA) && defined(CONFIG_UART8_RS485))
+      (defined(CONFIG_UART8_RXDMA) && defined(CONFIG_UART8_RS485)) || \
+      (defined(CONFIG_UART9_RXDMA) && defined(CONFIG_UART9_RS485)) || \
+      (defined(CONFIG_USART10_RXDMA) && defined(CONFIG_USART10_RS485))
 #    error "RXDMA and RS-485 cannot be enabled at the same time for the same U[S]ART"
 #  endif
 
@@ -335,6 +361,30 @@
 #        error STM32 UART8 using DMAMAP_DMA12_UART8TX_1 for transmit DMA requires CONFIG_STM32H7_DMA2
 #    endif
 #  endif
+
+#  if defined(CONFIG_UART9_TXDMA)
+#    if !defined(DMAMAP_UART9_TX)
+#     error "UART9 DMA map not defined (DMAMAP_UART9_TX)"
+#    endif
+#    if DMAMAP_UART9_TX == DMAMAP_DMA12_UART9TX_0 && !defined(CONFIG_STM32H7_DMA1)
+#        error STM32 UART9 using DMAMAP_DMA12_UART9TX_0 for transmit DMA requires CONFIG_STM32H7_DMA1
+#    endif
+#    if DMAMAP_UART9_TX == DMAMAP_DMA12_UART9TX_1 && !defined(CONFIG_STM32H7_DMA2)
+#        error STM32 UART9 using DMAMAP_DMA12_UART9TX_1 for transmit DMA requires CONFIG_STM32H7_DMA2
+#    endif
+#  endif
+
+#  if defined(CONFIG_USART10_TXDMA)
+#    if !defined(DMAMAP_USART10_TX)
+#     error "USART10 DMA map not defined (DMAMAP_USART10_TX)"
+#    endif
+#    if DMAMAP_USART10_TX == DMAMAP_DMA12_USART10TX_0 && !defined(CONFIG_STM32H7_DMA1)
+#        error STM32 USART10 using DMAMAP_DMA12_USART10TX_0 for transmit DMA requires CONFIG_STM32H7_DMA1
+#    endif
+#    if DMAMAP_USART10_TX == DMAMAP_DMA12_USART10TX_1 && !defined(CONFIG_STM32H7_DMA2)
+#        error STM32 USART10 using DMAMAP_DMA12_USART10TX_1 for transmit DMA requires CONFIG_STM32H7_DMA2
+#    endif
+#  endif
 #endif
 
 /* Currently RS-485 support cannot be enabled when TXDMA is in use due to
@@ -348,7 +398,9 @@
      (defined(CONFIG_UART5_TXDMA) && defined(CONFIG_UART5_RS485)) || \
      (defined(CONFIG_USART6_TXDMA) && defined(CONFIG_USART6_RS485)) || \
      (defined(CONFIG_UART7_TXDMA) && defined(CONFIG_UART7_RS485)) || \
-     (defined(CONFIG_UART8_TXDMA) && defined(CONFIG_UART8_RS485))
+     (defined(CONFIG_UART8_TXDMA) && defined(CONFIG_UART8_RS485)) || \
+     (defined(CONFIG_UART9_TXDMA) && defined(CONFIG_UART9_RS485)) || \
+     (defined(CONFIG_USART10_TXDMA) && defined(CONFIG_USART10_RS485))
 #  error "TXDMA and RS-485 cannot be enabled at the same time for the same U[S]ART"
 #endif
 
@@ -445,6 +497,22 @@
 #else
 #  define UART8_TXBUFSIZE_ADJUSTED TXDMA_BUF_SIZE(CONFIG_UART8_TXBUFSIZE)
 #  define UART8_TXBUFSIZE_ALGN TXDMA_BUF_ALIGN
+#endif
+
+#if !defined(CONFIG_UART9_TXDMA)
+#  define UART9_TXBUFSIZE_ADJUSTED  CONFIG_UART9_TXBUFSIZE
+#  define UART9_TXBUFSIZE_ALGN
+#else
+#  define UART9_TXBUFSIZE_ADJUSTED TXDMA_BUF_SIZE(CONFIG_UART9_TXBUFSIZE)
+#  define UART9_TXBUFSIZE_ALGN TXDMA_BUF_ALIGN
+#endif
+
+#if !defined(CONFIG_USART10_TXDMA)
+#  define USART10_TXBUFSIZE_ADJUSTED  CONFIG_USART10_TXBUFSIZE
+#  define USART10_TXBUFSIZE_ALGN
+#else
+#  define USART10_TXBUFSIZE_ADJUSTED TXDMA_BUF_SIZE(CONFIG_USART10_TXBUFSIZE)
+#  define USART10_TXBUFSIZE_ALGN TXDMA_BUF_ALIGN
 #endif
 
 #ifdef SERIAL_HAVE_TXDMA
@@ -555,6 +623,11 @@
 
 #  if defined(CONFIG_UART8_RXDMA) && defined(CONFIG_UART8_IFLOWCONTROL)
 #    warning "RXDMA and IFLOWCONTROL both enabled for UART8. \
+              This combination can lead to data loss."
+#  endif
+
+#  if defined(CONFIG_UART9_RXDMA) && defined(CONFIG_UART9_IFLOWCONTROL)
+#    warning "RXDMA and IFLOWCONTROL both enabled for UART9. \
               This combination can lead to data loss."
 #  endif
 #endif /* CONFIG_STM32H7_FLOWCONTROL_BROKEN */
@@ -862,6 +935,16 @@ static char g_uart8rxfifo[RXDMA_BUFFER_SIZE]
   aligned_data(ARMV7M_DCACHE_LINESIZE);
 #endif
 
+#ifdef CONFIG_UART9_RXDMA
+static char g_uart9rxfifo[RXDMA_BUFFER_SIZE]
+  aligned_data(ARMV7M_DCACHE_LINESIZE);
+#endif
+
+#ifdef CONFIG_USART10_RXDMA
+static char g_usart10rxfifo[RXDMA_BUFFER_SIZE]
+  aligned_data(ARMV7M_DCACHE_LINESIZE);
+#endif
+
 /* Receive/Transmit buffers */
 
 #ifdef CONFIG_STM32H7_USART1
@@ -910,6 +993,18 @@ static char g_uart7txbuffer[UART7_TXBUFSIZE_ADJUSTED] \
 static char g_uart8rxbuffer[CONFIG_UART8_RXBUFSIZE];
 static char g_uart8txbuffer[UART8_TXBUFSIZE_ADJUSTED] \
   UART8_TXBUFSIZE_ALGN;
+#endif
+
+#ifdef CONFIG_STM32H7_UART9
+static char g_uart9rxbuffer[CONFIG_UART9_RXBUFSIZE];
+static char g_uart9txbuffer[UART9_TXBUFSIZE_ADJUSTED] \
+  UART9_TXBUFSIZE_ALGN;
+#endif
+
+#ifdef CONFIG_STM32H7_USART10
+static char g_usart10rxbuffer[CONFIG_USART10_RXBUFSIZE];
+static char g_usart10txbuffer[USART10_TXBUFSIZE_ADJUSTED] \
+  10_TXBUFSIZE_ALGN;
 #endif
 
 /* This describes the state of the STM32 USART1 ports. */
@@ -1464,6 +1559,146 @@ static struct up_dev_s g_uart8priv =
 };
 #endif
 
+/* This describes the state of the STM32 UART9 port. */
+
+#ifdef CONFIG_STM32H7_UART9
+static struct up_dev_s g_uart9priv =
+{
+  .dev =
+  {
+#if CONSOLE_UART == 9
+    .isconsole   = true,
+#endif
+    .recv        =
+    {
+      .size      = sizeof(g_uart9rxbuffer),
+      .buffer    = g_uart9rxbuffer,
+    },
+    .xmit        =
+    {
+      .size      = sizeof(g_uart9txbuffer),
+      .buffer    = g_uart9txbuffer,
+    },
+#if defined(CONFIG_UART9_RXDMA) && defined(CONFIG_UART9_TXDMA)
+    .ops         = &g_uart_rxtxdma_ops,
+#elif defined(CONFIG_UART9_RXDMA) && !defined(CONFIG_UART9_TXDMA)
+    .ops         = &g_uart_rxdma_ops,
+#elif !defined(CONFIG_UART9_RXDMA) && defined(CONFIG_UART9_TXDMA)
+    .ops         = &g_uart_txdma_ops,
+#else
+    .ops         = &g_uart_ops,
+#endif
+    .priv        = &g_uart9priv,
+  },
+
+  .irq           = STM32_IRQ_UART9,
+  .rxftcfg       = CONFIG_UART9_RXFIFO_THRES,
+  .parity        = CONFIG_UART9_PARITY,
+  .bits          = CONFIG_UART9_BITS,
+  .stopbits2     = CONFIG_UART9_2STOP,
+  .baud          = CONFIG_UART9_BAUD,
+  .apbclock      = STM32_PCLK2_FREQUENCY,
+  .usartbase     = STM32_UART9_BASE,
+  .tx_gpio       = GPIO_UART9_TX,
+  .rx_gpio       = GPIO_UART9_RX,
+#if defined(CONFIG_SERIAL_OFLOWCONTROL) && defined(CONFIG_UART9_OFLOWCONTROL)
+  .oflow         = true,
+  .cts_gpio      = GPIO_UART9_CTS,
+#endif
+#if defined(CONFIG_SERIAL_IFLOWCONTROL) && defined(CONFIG_UART9_IFLOWCONTROL)
+  .iflow         = true,
+  .rts_gpio      = GPIO_UART9_RTS,
+#endif
+#ifdef CONFIG_UART9_TXDMA
+  .txdma_channel = DMAMAP_UART9_TX,
+  .txdmasem      = SEM_INITIALIZER(1),
+#endif
+#ifdef CONFIG_UART9_RXDMA
+  .rxdma_channel = DMAMAP_UART9_RX,
+  .rxfifo        = g_uart9rxfifo,
+#endif
+
+#ifdef CONFIG_UART9_RS485
+  .rs485_dir_gpio = GPIO_UART9_RS485_DIR,
+#  if (CONFIG_UART9_RS485_DIR_POLARITY == 0)
+  .rs485_dir_polarity = false,
+#  else
+  .rs485_dir_polarity = true,
+#  endif
+#endif
+};
+#endif
+
+/* This describes the state of the STM32 USART10 port. */
+
+#ifdef CONFIG_STM32H7_USART10
+static struct up_dev_s g_usart10priv =
+{
+  .dev =
+  {
+#if CONSOLE_UART == 10
+    .isconsole   = true,
+#endif
+    .recv        =
+    {
+      .size      = sizeof(g_usart10rxbuffer),
+      .buffer    = g_usart10rxbuffer,
+    },
+    .xmit        =
+    {
+      .size      = sizeof(g_usart10txbuffer),
+      .buffer    = g_usart10txbuffer,
+    },
+#if defined(CONFIG_USART10_RXDMA) && defined(CONFIG_USART10_TXDMA)
+    .ops         = &g_uart_rxtxdma_ops,
+#elif defined(CONFIG_USART10_RXDMA) && !defined(CONFIG_USART10_TXDMA)
+    .ops         = &g_uart_rxdma_ops,
+#elif !defined(CONFIG_USART10_RXDMA) && defined(CONFIG_USART10_TXDMA)
+    .ops         = &g_uart_txdma_ops,
+#else
+    .ops         = &g_uart_ops,
+#endif
+    .priv        = &g_usart10priv,
+  },
+
+  .irq           = STM32_IRQ_USART10,
+  .rxftcfg       = CONFIG_USART10_RXFIFO_THRES,
+  .parity        = CONFIG_USART10_PARITY,
+  .bits          = CONFIG_USART10_BITS,
+  .stopbits2     = CONFIG_USART10_2STOP,
+  .baud          = CONFIG_USART10_BAUD,
+  .apbclock      = STM32_PCLK1_FREQUENCY,
+  .usartbase     = STM32_USART10_BASE,
+  .tx_gpio       = GPIO_USART10_TX,
+  .rx_gpio       = GPIO_USART10_RX,
+#if defined(CONFIG_SERIAL_OFLOWCONTROL) && defined(CONFIG_USART10_OFLOWCONTROL)
+  .oflow         = true,
+  .cts_gpio      = GPIO_USART10_CTS,
+#endif
+#if defined(CONFIG_SERIAL_IFLOWCONTROL) && defined(CONFIG_USART10_IFLOWCONTROL)
+  .iflow         = true,
+  .rts_gpio      = GPIO_USART10_RTS,
+#endif
+#ifdef CONFIG_USART10_TXDMA
+  .txdma_channel = DMAMAP_USART10_TX,
+  .txdmasem      = SEM_INITIALIZER(1),
+#endif
+#ifdef CONFIG_USART10_RXDMA
+  .rxdma_channel = DMAMAP_USART10_RX,
+  .rxfifo        = g_usart10rxfifo,
+#endif
+
+#ifdef CONFIG_USART10_RS485
+  .rs485_dir_gpio = GPIO_USART10_RS485_DIR,
+#  if (CONFIG_USART10_RS485_DIR_POLARITY == 0)
+  .rs485_dir_polarity = false,
+#  else
+  .rs485_dir_polarity = true,
+#  endif
+#endif
+};
+#endif
+
 /* This table lets us iterate over the configured USARTs */
 
 static struct up_dev_s * const g_uart_devs[STM32_NSERIAL] =
@@ -1491,6 +1726,12 @@ static struct up_dev_s * const g_uart_devs[STM32_NSERIAL] =
 #endif
 #ifdef CONFIG_STM32H7_UART8
   [7] = &g_uart8priv,
+#endif
+#ifdef CONFIG_STM32H7_UART9
+  [8] = &g_uart9priv,
+#endif
+#ifdef CONFIG_STM32H7_USART10
+  [9] = &g_usart10priv,
 #endif
 };
 
@@ -2024,6 +2265,12 @@ static void up_set_apb_clock(struct uart_dev_s *dev, bool on)
     case STM32_UART8_BASE:
       rcc_en = RCC_APB1LENR_UART8EN;
       regaddr = STM32_RCC_APB1LENR;
+      break;
+#endif
+#ifdef CONFIG_STM32H7_UART9
+    case STM32_UART9_BASE:
+      rcc_en = RCC_APB2ENR_UART9EN;
+      regaddr = STM32_RCC_APB2ENR;
       break;
 #endif
     }
@@ -3985,6 +4232,13 @@ void stm32_serial_dma_poll(void)
   if (g_uart8priv.rxdma != NULL)
     {
       up_dma_rxcallback(g_uart8priv.rxdma, 0, &g_uart8priv);
+    }
+#endif
+
+#ifdef CONFIG_UART9_RXDMA
+  if (g_uart9priv.rxdma != NULL)
+    {
+      up_dma_rxcallback(g_uart9priv.rxdma, 0, &g_uart9priv);
     }
 #endif
 

@@ -26,7 +26,6 @@
  ****************************************************************************/
 
 #include <nuttx/config.h>
-#include "chip.h"
 
 #if defined(CONFIG_STM32H7_USE_LEGACY_PINMAP)
 #  if defined(CONFIG_STM32H7_STM32H7X3XX)
@@ -39,7 +38,9 @@
 #    error "Unsupported STM32 H7 Pin map"
 #  endif
 #else
-#  if defined(CONFIG_STM32H7_STM32H7X3XX)
+#  if defined(CONFIG_STM32H7_STM32H72X73X)
+#    include "hardware/stm32h72x73x_pinmap.h"
+#  elif defined(CONFIG_STM32H7_STM32H7X3XX)
 #    include "hardware/stm32h7x3xx_pinmap.h"
 #  elif defined(CONFIG_STM32H7_STM32H7B3XX)
 #    include "hardware/stm32h7x3xx_pinmap.h"

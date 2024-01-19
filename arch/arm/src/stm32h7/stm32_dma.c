@@ -36,11 +36,7 @@
 #include <arch/stm32h7/chip.h>
 
 #include "arm_internal.h"
-#include "sched/sched.h"
 #include "stm32_dma.h"
-#include "hardware/stm32_bdma.h"
-#include "hardware/stm32_mdma.h"
-#include "hardware/stm32_dmamux.h"
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -1785,8 +1781,7 @@ static int stm32_bdma_interrupt(int irq, void *context, void *arg)
   status = (dmabase_getreg(dmachan, STM32_BDMA_ISR_OFFSET) >> dmachan->shift)
             & BDMA_CHAN_MASK;
 
-  dmabase_putreg(dmachan, STM32_BDMA_IFCR_OFFSET,
-                 (status << dmachan->shift));
+  dmabase_putreg(dmachan, STM32_BDMA_IFCR_OFFSET, (status << dmachan->shift));
 
   /* Invoke the callback */
 
@@ -1794,7 +1789,7 @@ static int stm32_bdma_interrupt(int irq, void *context, void *arg)
     {
       /* Map to the SDMA status */
 
-      scrstatus  = (status & BDMA_CHAN_TEIF) ? DMA_STREAM_FEIF_BIT : 0;
+      scrstatus  = (status & BDMA_CHAN_TEIF) ? DMA_STREAM_TEIF_BIT : 0;
       scrstatus |= (status & BDMA_CHAN_TCIF) ? DMA_STREAM_TCIF_BIT : 0;
       scrstatus |= (status & BDMA_CHAN_HTIF) ? DMA_STREAM_HTIF_BIT : 0;
       dmachan->callback(dmachan, scrstatus, dmachan->arg);
@@ -1816,7 +1811,7 @@ static inline int32_t stm32_sdma_scr_2_bdma_ccr(int32_t scr)
   uint32_t ccr = 0;
   ccr |= (scr & DMA_SCR_CT) ? BDMA_CCR_CT : 0;
   ccr |= (scr & DMA_SCR_DBM) ? BDMA_CCR_DBM : 0;
-  ccr |= (scr & DMA_SCR_PL_MASK) >> (DMA_SCR_PL_SHIFT - BDMA_CCR_PRILO);
+  ccr |= (scr & DMA_SCR_PL_MASK) >> (DMA_SCR_PL_SHIFT - BDMA_CCR_PL_SHIFT);
   ccr |= (scr & DMA_SCR_MSIZE_MASK) >>
                (DMA_SCR_MSIZE_SHIFT - BDMA_CCR_MSIZE_SHIFT);
   ccr |= (scr & DMA_SCR_PSIZE_MASK) >>
@@ -1845,15 +1840,14 @@ static void stm32_bdma_setup(DMA_HANDLE handle, stm32_dmacfg_t *cfg)
   uint32_t    timeout;
   DMA_CHANNEL dmachan    = (DMA_CHANNEL)handle;
   uint32_t    regval     = 0;
-  uint32_t    scr        = cfg->cfg1;
-  uint32_t    ccr        = 0;
+  uint32_t    ccr        = stm32_sdma_scr_2_bdma_ccr(cfg->cfg1);
 
   DEBUGASSERT(handle != NULL);
   DEBUGASSERT(dmachan->ctrl == BDMA);
 
-  dmainfo("paddr: %08" PRIx32 " maddr: %08" PRIx32 " ndata: %" PRIu32 " "
-          "scr: %08" PRIx32 "\n",
-          cfg->paddr, cfg->maddr, cfg->ndata, cfg->cfg1);
+  dmainfo("paddr: 0x%08" PRIx32 " maddr: 0x%08" PRIx32 " ndata: %" PRIu32 " "
+          "ccr: 0x%08" PRIx32 "\n",
+          cfg->paddr, cfg->maddr, cfg->ndata, ccr);
 
 #ifdef CONFIG_STM32H7_DMACAPABLE
   DEBUGASSERT(stm32_bdma_capable(cfg));
@@ -1926,10 +1920,23 @@ static void stm32_bdma_setup(DMA_HANDLE handle, stm32_dmacfg_t *cfg)
    */
 
   dmachan_putreg(dmachan, STM32_BDMACH_CM0AR_OFFSET, cfg->maddr);
-  if (scr & DMA_SCR_DBM)
+  if (ccr & BDMA_CCR_DBM)
     {
+      uint32_t offset;
+      if (ccr & BDMA_CCR_MSIZE_32BITS)
+        {
+          offset = cfg->ndata << 2;
+        }
+      else if (ccr & BDMA_CCR_MSIZE_16BITS)
+        {
+          offset = cfg->ndata << 1;
+        }
+      else
+        {
+          offset = cfg->ndata;
+        }
       dmachan_putreg(dmachan, STM32_BDMACH_CM1AR_OFFSET,
-                     cfg->maddr + cfg->ndata);
+                     cfg->maddr + offset);
     }
 
   /* "Configure the total number of data items to be transferred in the
@@ -1944,14 +1951,13 @@ static void stm32_bdma_setup(DMA_HANDLE handle, stm32_dmacfg_t *cfg)
    *  peripheral & memory data size, and interrupt after
    *  half and/or full transfer in the BDMACH_CCRx register."
    *
-   * Note: The CT bit is always reset.
+   * Note: The CT and interrupt bits are always reset.
    */
 
   regval  = dmachan_getreg(dmachan, STM32_BDMACH_CCR_OFFSET);
   regval &= ~(BDMA_CCR_DIR | BDMA_CCR_CIRC | BDMA_CCR_PINC |
               BDMA_CCR_MINC | BDMA_CCR_PSIZE_MASK | BDMA_CCR_MSIZE_MASK |
               BDMA_CCR_PL_MASK | BDMA_CCR_M2M | BDMA_CCR_DBM | BDMA_CCR_CT);
-  ccr = stm32_sdma_scr_2_bdma_ccr(scr);
   ccr    &=  (BDMA_CCR_DIR | BDMA_CCR_CIRC | BDMA_CCR_PINC |
               BDMA_CCR_MINC | BDMA_CCR_PSIZE_MASK | BDMA_CCR_MSIZE_MASK |
               BDMA_CCR_PL_MASK | BDMA_CCR_M2M | BDMA_CCR_DBM);
@@ -2055,10 +2061,10 @@ static bool stm32_bdma_capable(stm32_dmacfg_t *cfg)
   uint32_t mend;
   uint32_t count = cfg->ndata;
   uint32_t maddr = cfg->maddr;
-  uint32_t ccr   = cfg->cfg1;
+  uint32_t ccr   = stm32_sdma_scr_2_bdma_ccr(cfg->cfg1);
 
   dmainfo("0x%08" PRIx32 "/%" PRIu32 " 0x%08" PRIx32 "\n",
-          cfg->maddr, cfg->ndata, cfg->cfg1);
+          cfg->maddr, cfg->ndata, ccr);
 
   /* Verify that the address conforms to the memory transfer size.
    * Transfers to/from memory performed by the BDMA controller are
@@ -2105,7 +2111,7 @@ static bool stm32_bdma_capable(stm32_dmacfg_t *cfg)
     }
 
 #  if defined(CONFIG_ARMV7M_DCACHE) &&                  \
-      !defined(CONFIG_ARMV7M_DCACHE_WRITETHROUGH)
+      (!defined(CONFIG_ARMV7M_DCACHE_WRITETHROUGH) || defined(CONFIG_STM32H7_SRAM4_BDMA))
   /* buffer alignment is required for DMA transfers with dcache in buffered
    * mode (not write-through) because a) arch_invalidate_dcache could lose
    * buffered writes and b) arch_flush_dcache could corrupt adjacent memory
@@ -2191,7 +2197,7 @@ static void stm32_bdma_dump(DMA_HANDLE handle, const char *msg)
   dmainfo("   CM1AR: %08" PRIx32 "\n",
           dmachan_getreg(dmachan, STM32_BDMACH_CM1AR_OFFSET));
 
-  stm32_dmamux_dump(g_dma[dmachan->ctrl].dmamux, controller);
+  stm32_dmamux_dump(g_dma[dmachan->ctrl].dmamux, dmachan->chan);
 }
 #endif
 
@@ -2205,22 +2211,14 @@ static void stm32_bdma_dump(DMA_HANDLE handle, const char *msg)
 static void stm32_dmamux_dump(DMA_MUX dmamux, uint8_t chan)
 {
   dmainfo("DMAMUX%" PRIu8 " CH=%" PRIu8 "\n", dmamux->id, chan);
-  dmainfo("   CCR:   %08" PRIx32 "\n",
+  dmainfo("   C%dCR:   %08" PRIx32 "\n", chan,
           dmamux_getreg(dmamux, STM32_DMAMUX_CXCR_OFFSET(chan)));
   dmainfo("   CSR:   %08" PRIx32 "\n",
           dmamux_getreg(dmamux, STM32_DMAMUX_CSR_OFFSET));
-  dmainfo("   RG0CR: %08" PRIx32 "\n",
-          dmamux_getreg(dmamux, STM32_DMAMUX_RG0CR_OFFSET));
-  dmainfo("   RG1CR: %08" PRIx32 "\n",
-          dmamux_getreg(dmamux, STM32_DMAMUX_RG1CR_OFFSET));
-  dmainfo("   RG2CR: %08" PRIx32 "\n",
-          dmamux_getreg(dmamux, STM32_DMAMUX_RG2CR_OFFSET));
-  dmainfo("   RG3CR: %08" PRIx32 "\n",
-          dmamux_getreg(dmamux, STM32_DMAMUX_RG3CR_OFFSET));
+  dmainfo("   RG%dCR: %08" PRIx32 "\n", chan,
+          dmamux_getreg(dmamux, STM32_DMAMUX_RGXCR_OFFSET(chan)));
   dmainfo("   RGSR:  %08" PRIx32 "\n",
           dmamux_getreg(dmamux, STM32_DMAMUX_RGSR_OFFSET));
-  dmainfo("   RGCFR: %08" PRIx32 "\n",
-          dmamux_getreg(dmamux, STM32_DMAMUX_RGCFR_OFFSET));
 };
 #endif
 
@@ -2636,7 +2634,7 @@ void stm32_dmadump(DMA_HANDLE handle, const char *msg)
   DEBUGASSERT(controller >= MDMA && controller <= BDMA);
 
   dmainfo("DMA %" PRIu8 " CH%" PRIu8 " Registers: %s\n",
-          dmachan->ctrl, dmachan->ctrl, msg);
+          dmachan->ctrl, dmachan->chan, msg);
 
   g_dma_ops[controller].dma_dump(handle, msg);
 }

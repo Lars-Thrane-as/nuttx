@@ -33,6 +33,7 @@
 #include "stm32_rcc.h"
 #include "stm32_gpio.h"
 #include "stm32_uart.h"
+#include "stm32_lowputc.h"
 
 #include <arch/board/board.h>
 
@@ -190,6 +191,25 @@
 #    ifdef CONFIG_UART8_RS485
 #      define STM32_CONSOLE_RS485_DIR GPIO_UART8_RS485_DIR
 #      if (CONFIG_UART8_RS485_DIR_POLARITY == 0)
+#        define STM32_CONSOLE_RS485_DIR_POLARITY false
+#      else
+#        define STM32_CONSOLE_RS485_DIR_POLARITY true
+#      endif
+#    endif
+#  elif defined(CONFIG_UART9_SERIAL_CONSOLE)
+#    define STM32_CONSOLE_BASE     STM32_UART9_BASE
+#    define STM32_APBCLOCK         STM32_PCLK2_FREQUENCY
+#    define STM32_CONSOLE_APBREG   STM32_RCC_APB2ENR
+#    define STM32_CONSOLE_APBEN    RCC_APB2ENR_UART9EN
+#    define STM32_CONSOLE_BAUD     CONFIG_UART9_BAUD
+#    define STM32_CONSOLE_BITS     CONFIG_UART9_BITS
+#    define STM32_CONSOLE_PARITY   CONFIG_UART9_PARITY
+#    define STM32_CONSOLE_2STOP    CONFIG_UART9_2STOP
+#    define STM32_CONSOLE_TX       GPIO_UART9_TX
+#    define STM32_CONSOLE_RX       GPIO_UART9_RX
+#    ifdef CONFIG_UART9_RS485
+#      define STM32_CONSOLE_RS485_DIR GPIO_UART9_RS485_DIR
+#      if (CONFIG_UART9_RS485_DIR_POLARITY == 0)
 #        define STM32_CONSOLE_RS485_DIR_POLARITY false
 #      else
 #        define STM32_CONSOLE_RS485_DIR_POLARITY true
